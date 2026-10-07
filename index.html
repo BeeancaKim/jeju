@@ -453,9 +453,10 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     // 심플하고 차분한 CartoDB Positron 타일 레이어
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
     // 3. 이동시간 동심원 (5분 ~3km / 15분 ~10km / 30분 ~20km)
     const ring5 = L.circle(HOME_COORDS, { radius: 3000, color: '#10B981', weight: 1.5, dashArray: '4, 4', fill: true, fillColor: '#10B981', fillOpacity: 0.03 }).addTo(map);
