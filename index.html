@@ -99,7 +99,7 @@
         🌊 바다 입수 (4)
       </button>
       <button onclick="filterCategory('trip')" data-cat="trip" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        🚗 반려견 여행 (4)
+        🚗 반려견 여행 (8)
       </button>
       <button onclick="filterCategory('bakery')" data-cat="bakery" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
         🥐 빵집 (4)
@@ -109,10 +109,10 @@
       </button>
     </div>
 
-    <!-- [신규] 원정 서귀포 토글 버튼 -->
+    <!-- 원정 동쪽/서귀포 토글 버튼 -->
     <div class="shrink-0">
       <button id="toggle-far-btn" onclick="toggleFarPlaces()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-sm">
-        <span>🏝️ 원정 서귀포 (시스터필드 외)</span>
+        <span>🏝️ 동쪽·서귀포 원정</span>
         <span id="far-badge" class="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">OFF</span>
       </button>
     </div>
@@ -131,10 +131,10 @@
             <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
             여섯 살 관절 안심 생활권
           </span>
-          <span class="text-[11px] text-emerald-600 font-normal">자갈길 배제 · 평지 중심</span>
+          <span id="place-count-indicator" class="text-[11px] text-emerald-600 font-semibold">22개 장소 표시 중</span>
         </div>
         <p class="text-emerald-700 leading-relaxed text-[11px]">
-          평탄 잔디마당(조랑말공원·성읍)과 무장애 해안 데크(당포포구) 위주로 구성했습니다.
+          거친 자갈길은 배제하고, 평탄 잔디마당과 무장애 데크, 수심 얕은 완만 모래사장 위주로 구성했습니다.
         </p>
       </div>
 
@@ -157,8 +157,9 @@
   <script>
     const HOME_COORDS = [33.3768, 126.7725]; // 표선면 녹산로 5번길 부근
 
-    // 1. 기본 생활권 플레이스 (18곳)
+    // 1. 기본 생활권 플레이스 (총 24곳: 데일리5 + 바다4 + 여행8 + 빵4 + 서점3)
     const LOCAL_PLACES = [
+      // 데일리 산책
       {
         id: 'walk-1', cat: 'walk', catName: '데일리 산책', icon: '🐾',
         name: '조랑말체험공원 평지 잔디마당', tag: '차로 3분 · 관절 안심 잔디밭', time: '3분',
@@ -194,6 +195,8 @@
         desc: '정상 계단 대신 오름 아래를 도는 완만한 둘레길입니다. 계절 억새 냄새를 맡으며 걷기 좋습니다.',
         kakaoQuery: '따라비오름'
       },
+
+      // 바다 입수
       {
         id: 'beach-1', cat: 'beach', catName: '바다 입수', icon: '🌊',
         name: '소금막해변', tag: '차로 12분 · 반려견 수영 성지', time: '12분',
@@ -222,6 +225,8 @@
         desc: '동북부에서 가장 한적한 해변 중 하나. 수심이 매우 얕고 인파가 적어 강아지와 평화롭게 수영하기 좋습니다.',
         kakaoQuery: '하도해수욕장'
       },
+
+      // 반려견 동반 여행지 (기존 4곳 + 신규 생활권 4곳 = 총 8곳)
       {
         id: 'trip-1', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '가시림 (정원 수목원 카페)', tag: '차로 4분 · 숲속 산책로', time: '4분',
@@ -251,6 +256,36 @@
         kakaoQuery: '더리트리브'
       },
       {
+        id: 'trip-5', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '보목포구 & 섶섬지기 바닷길', tag: '차로 25분 · 고즈넉한 포구 산책', time: '25분',
+        lat: 33.2370, lng: 126.6025, surface: '평탄 포구 해안길 & 바다 전망 카페',
+        desc: '섶섬이 눈앞에 잡힐 듯 펼쳐지는 평화로운 어촌 포구. 인파 없이 한적하게 바닷바람을 쐬며 걷기 좋습니다.',
+        kakaoQuery: '보목포구'
+      },
+      {
+        id: 'trip-6', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '자구리 문화예술공원', tag: '차로 32분 · 해안 절벽 잔디밭', time: '32분',
+        lat: 33.2440, lng: 126.5700, surface: '완만한 해안 잔디 공원 & 데크',
+        desc: '문섬과 섶섬을 조망하며 잔디밭을 산책할 수 있는 서귀포 로컬 반려인들의 명소. 바다 바람이 시원합니다.',
+        kakaoQuery: '자구리공원'
+      },
+      {
+        id: 'trip-7', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '종달리 철새도래지 & 해안길', tag: '차로 28분 · 잔잔한 수변 흙길', time: '28분',
+        lat: 33.4950, lng: 126.9120, surface: '부드러운 해안 흙길 & 수변 데크',
+        desc: '차량 통행이 적고 수심 얕은 만을 따라 평탄한 흙길이 이어져 조용하게 노즈워크하기 훌륭한 동쪽 코스입니다.',
+        kakaoQuery: '종달리 철새도래지'
+      },
+      {
+        id: 'trip-8', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '김녕 세기알해변 & 환해장성길', tag: '차로 30분 · 평지 성곽 해안길', time: '30분',
+        lat: 33.5580, lng: 126.7530, surface: '평탄 현무암 잔디 보행로',
+        desc: '코발트빛 김녕 바다와 옛 현무암 성곽을 끼고 평평하게 걷는 코스. 시야가 맑고 바람이 좋습니다.',
+        kakaoQuery: '세기알해변'
+      },
+
+      // 빵집
+      {
         id: 'bakery-1', cat: 'bakery', catName: '빵집', icon: '🥐',
         name: '빵굽는카페 라블레', tag: '차로 10분 · 천연발효 유기농 식사빵', time: '10분',
         lat: 33.3250, lng: 126.8320, surface: '표선 읍내 베이커리',
@@ -278,6 +313,8 @@
         desc: '우도 땅콩 식빵, 제주 말차 단팥 식빵 등 촉촉하고 쫄깃한 식사 대용 식빵이 시그니처입니다.',
         kakaoQuery: '송당의아침'
       },
+
+      // 독립서점
       {
         id: 'book-1', cat: 'book', catName: '독립서점', icon: '📖',
         name: '책계일주 (Book Bar)', tag: '차로 14분 · 여행·사진 큐레이션 북바', time: '14분',
@@ -301,8 +338,9 @@
       }
     ];
 
-    // 2. 생활권 외부 원정 스팟 (서귀포 시내권 확장 4곳)
+    // 2. 동쪽·서귀포 원정 스팟 (반려견 동반 6곳 + 시스터필드 등 빵/서점 4곳 = 총 10곳)
     const FAR_PLACES = [
+      // 기존 빵집 & 서점 & 드라이브
       {
         id: 'far-1', cat: 'far', catName: '원정 빵집', icon: '🥖',
         name: '시스터필드 (Sister Field)', tag: '차로 45분 · 정통 사워도우 명가', time: '45분',
@@ -330,6 +368,50 @@
         lat: 33.2910, lng: 126.5240, surface: '산록남로 숲 그늘 드라이브 & 데크',
         desc: '한라산 남쪽 기슭 울창한 편백·삼나무 숲. 시원한 산바람을 쐬며 머리를 식히기 좋은 드라이브 코스입니다.',
         kakaoQuery: '서귀포치유의숲'
+      },
+
+      // [신규 보강] 반려견 동반 원정 자연·공원 명소들
+      {
+        id: 'far-5', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '제주조각공원 (포레스트아트)', tag: '차로 48분 · 곶자왈 숲 산책로', time: '48분',
+        lat: 33.2520, lng: 126.3260, surface: '넓은 평지 잔디 광장 & 목재 데크',
+        desc: '안덕면의 드넓은 야외 조각 숲공원. 반려견 동반 입장이 가능하며 바닥이 평탄해 여유롭게 삼림욕 산책을 즐기기 좋습니다.',
+        kakaoQuery: '제주조각공원'
+      },
+      {
+        id: 'far-6', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '송악산 둘레길 (완만 데크 구간)', tag: '차로 55분 · 산방산 바다 절벽 뷰', time: '55분',
+        lat: 33.2030, lng: 126.2910, surface: '무장애 목재 데크 로드',
+        desc: '제주 서남단 바다 절벽을 따라 끝없이 펼쳐지는 데크길. 가파른 계단 전까지 평탄하게 바닷바람을 쐬며 걷기 최적입니다.',
+        kakaoQuery: '송악산둘레길'
+      },
+      {
+        id: 'far-7', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '엉또폭포 무장애 숲 데크길', tag: '차로 42분 · 동백·편백 숲길', time: '42분',
+        lat: 33.2680, lng: 126.4840, surface: '계단 없는 완만한 숲 데크',
+        desc: '울창한 숲 그늘 아래 턱 없는 목재 데크가 길게 깔려 있어, 비 온 직후뿐 아니라 평소에도 반려견과 시원하게 걷기 좋습니다.',
+        kakaoQuery: '엉또폭포'
+      },
+      {
+        id: 'far-8', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '성산일출봉 외곽 잔디광장길', tag: '차로 32분 · 웅장한 절벽 뷰', time: '32분',
+        lat: 33.4580, lng: 126.9380, surface: '넓고 평평한 천연 잔디밭',
+        desc: '유료 등산로에 오르지 않고, 매표소 앞 드넓은 잔디 광장과 우뭇개 해안 전망대 언덕길을 여유롭게 거니는 동쪽 코스입니다.',
+        kakaoQuery: '성산일출봉 잔디'
+      },
+      {
+        id: 'far-9', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '행원리 풍력단지 해안 산책로', tag: '차로 35분 · 동쪽 탁 트인 직선길', time: '35분',
+        lat: 33.5510, lng: 126.8150, surface: '평탄한 해안 포장길 & 자전거도로',
+        desc: '구좌 동쪽 바다 한가운데로 뻗은 거대한 풍력발전기 아래 해안도로. 인적이 드물어 시원한 바닷바람을 맞으며 산책하기 좋습니다.',
+        kakaoQuery: '행원포구'
+      },
+      {
+        id: 'far-10', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        name: '군산오름 진입로 능선 흙길', tag: '차로 50분 · 파노라마 남해 뷰', time: '50분',
+        lat: 33.2420, lng: 126.3680, surface: '완만한 흙길 & 정상부 초원',
+        desc: '정상 바로 아래까지 차로 올라갈 수 있어 6살 강아지도 힘들이지 않고 한라산 남벽과 바다를 360도로 조망할 수 있습니다.',
+        kakaoQuery: '군산오름'
       }
     ];
 
@@ -347,7 +429,7 @@
     let currentCategory = 'all';
     let isFarEnabled = false;
 
-    // 지도 초기화 (오픈스트리트맵 무료 타일 적용)
+    // Leaflet 지도 초기화 (오픈스트리트맵 타일)
     let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([33.370, 126.780], 12);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -356,7 +438,7 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // 동심원
+    // 동심원 (5분 / 15분 / 30분)
     L.circle(HOME_COORDS, { radius: 3000, color: '#10B981', weight: 1.5, dashArray: '4, 4', fill: true, fillColor: '#10B981', fillOpacity: 0.03 }).addTo(map);
     L.circle(HOME_COORDS, { radius: 10000, color: '#F59E0B', weight: 1.5, dashArray: '5, 5', fill: true, fillColor: '#F59E0B', fillOpacity: 0.02 }).addTo(map);
     L.circle(HOME_COORDS, { radius: 20000, color: '#3B82F6', weight: 1.5, dashArray: '6, 6', fill: false }).addTo(map);
@@ -417,6 +499,7 @@
     }
 
     const cardsContainer = document.getElementById('cards-container');
+    const indicator = document.getElementById('place-count-indicator');
 
     function renderCards() {
       let pool = [...LOCAL_PLACES];
@@ -429,13 +512,14 @@
         filtered = pool.filter(p => p.cat === currentCategory);
       }
 
+      indicator.innerText = `${filtered.length}개 장소 표시 중`;
       cardsContainer.innerHTML = '';
       markerGroup.clearLayers();
 
       if (filtered.length === 0) {
         cardsContainer.innerHTML = `
           <div class="p-8 text-center text-stone-400 text-xs">
-            해당 카테고리의 장소가 없습니다.
+            해당 조건의 장소가 없습니다.
           </div>
         `;
         return;
@@ -492,8 +576,8 @@
         badge.innerText = 'ON';
         badge.className = 'bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full';
         btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-600 bg-rose-600 text-white shadow-sm';
-        // 원정 스팟까지 보이도록 지도 시야 확장
-        map.flyTo([33.30, 126.65], 11, { duration: 1.0 });
+        // 서남단과 동북단이 모두 보이도록 지도 중심 및 줌 조정
+        map.flyTo([33.34, 126.62], 10.5, { duration: 1.0 });
       } else {
         badge.innerText = 'OFF';
         badge.className = 'bg-stone-400 text-white text-[10px] px-1.5 py-0.2 rounded-full';
