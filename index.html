@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>가시리 맵</title>
+  <title>가시리 라이프 맵</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +18,7 @@
               trip: '#E65100',
               bakery: '#D84315',
               book: '#4527A0',
-              bg: '#FAF8F5'
+              far: '#C2185B'
             }
           }
         }
@@ -26,7 +26,7 @@
     }
   </script>
 
-  <!-- Leaflet.js (지도 엔진) -->
+  <!-- Leaflet.js -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -34,7 +34,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* 지도 팝업 커스텀 스타일 */
     .leaflet-popup-content-wrapper {
       border-radius: 14px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
@@ -44,7 +43,6 @@
       margin: 10px 12px;
       font-family: inherit;
     }
-    /* 스크롤바 정돈 */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -66,27 +64,33 @@
       </div>
     </div>
     
-    <!-- 모바일 화면 전환 토글 (지도/목록) -->
+    <!-- 모바일 화면 전환 토글 -->
     <div class="flex md:hidden bg-stone-100 p-0.5 rounded-lg border border-stone-200 text-xs font-medium">
       <button id="view-map-btn" onclick="setMobileView('map')" class="px-2.5 py-1 rounded-md bg-white shadow-sm text-stone-900">지도</button>
       <button id="view-list-btn" onclick="setMobileView('list')" class="px-2.5 py-1 rounded-md text-stone-500">목록</button>
     </div>
 
-    <!-- 반경 링 토글 (데스크톱) -->
-    <div class="hidden md:flex items-center space-x-2 text-xs text-stone-600 bg-stone-100 px-3 py-1.5 rounded-full border border-stone-200">
-      <i data-lucide="compass" class="w-3.5 h-3.5 text-stone-500"></i>
-      <span>이동시간 동심원:</span>
-      <span class="inline-flex items-center gap-1 font-semibold text-emerald-700">● 5분</span>
-      <span class="inline-flex items-center gap-1 font-semibold text-amber-700">● 15분</span>
-      <span class="inline-flex items-center gap-1 font-semibold text-blue-700">● 30분</span>
+    <!-- 우측 보조 정보 (데스크톱) -->
+    <div class="hidden md:flex items-center space-x-3 text-xs">
+      <a href="https://www.badatime.com/139.html" target="_blank" class="flex items-center gap-1 text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200 hover:bg-sky-100 transition" title="표선 바다 물때표 확인">
+        <i data-lucide="waves" class="w-3.5 h-3.5"></i>
+        <span>표선 물때(간조) 확인</span>
+      </a>
+      <div class="flex items-center space-x-2 text-stone-600 bg-stone-100 px-3 py-1 rounded-full border border-stone-200">
+        <i data-lucide="compass" class="w-3.5 h-3.5 text-stone-500"></i>
+        <span>동심원:</span>
+        <span class="font-semibold text-emerald-700">● 5분</span>
+        <span class="font-semibold text-amber-700">● 15분</span>
+        <span class="font-semibold text-blue-700">● 30분</span>
+      </div>
     </div>
   </header>
 
-  <!-- 2. 카테고리 필터 바 -->
-  <nav class="bg-white border-b border-stone-200 px-3 py-2 z-10 shrink-0 overflow-x-auto">
+  <!-- 2. 카테고리 필터 & 원정 토글 바 -->
+  <nav class="bg-white border-b border-stone-200 px-3 py-2 z-10 shrink-0 flex items-center justify-between gap-2 overflow-x-auto">
     <div class="flex items-center space-x-1.5 min-w-max text-xs" id="filter-container">
       <button onclick="filterCategory('all')" data-cat="all" class="cat-pill active px-3 py-1.5 rounded-full font-medium transition bg-stone-900 text-white shadow-sm">
-        전체 보기 (18)
+        전체 보기
       </button>
       <button onclick="filterCategory('walk')" data-cat="walk" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
         🐾 데일리 산책 (5)
@@ -104,22 +108,33 @@
         📖 독립서점 (3)
       </button>
     </div>
+
+    <!-- [신규] 원정 서귀포 토글 버튼 -->
+    <div class="shrink-0">
+      <button id="toggle-far-btn" onclick="toggleFarPlaces()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-sm">
+        <span>🏝️ 원정 서귀포 (시스터필드 외)</span>
+        <span id="far-badge" class="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">OFF</span>
+      </button>
+    </div>
   </nav>
 
-  <!-- 3. 메인 콘텐츠 영역 (좌: 리스트 카드 / 우: 인터랙티브 지도) -->
+  <!-- 3. 메인 콘텐츠 영역 -->
   <main class="flex-1 flex overflow-hidden relative">
     
     <!-- [좌측] 장소 상세 카드 목록 -->
     <section id="sidebar-list" class="w-full md:w-[420px] lg:w-[460px] h-full overflow-y-auto p-4 space-y-3 bg-[#FAF8F5] border-r border-stone-200 shrink-0 z-10">
       
-      <!-- 상단 반려견 케어 안내 박스 -->
+      <!-- 반려견 케어 안내 박스 -->
       <div class="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[12px] text-emerald-900 space-y-1">
-        <div class="font-bold flex items-center gap-1.5 text-emerald-800">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-          여섯 살 관절 안심 산책 가이드
+        <div class="font-bold flex items-center justify-between text-emerald-800">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            여섯 살 관절 안심 생활권
+          </span>
+          <span class="text-[11px] text-emerald-600 font-normal">자갈길 배제 · 평지 중심</span>
         </div>
-        <p class="text-emerald-700 leading-relaxed">
-          거친 자갈길(가시천)은 배제하고, 평탄 잔디마당(조랑말공원·성읍)과 무장애 해안 데크(당포포구) 위주로 구성했습니다.
+        <p class="text-emerald-700 leading-relaxed text-[11px]">
+          평탄 잔디마당(조랑말공원·성읍)과 무장애 해안 데크(당포포구) 위주로 구성했습니다.
         </p>
       </div>
 
@@ -131,7 +146,7 @@
     <section id="map-container" class="flex-1 h-full relative">
       <div id="map" class="w-full h-full bg-stone-100"></div>
 
-      <!-- 지도 위 홈 버튼 -->
+      <!-- 홈 버튼 -->
       <button onclick="focusHome()" class="absolute bottom-6 right-6 z-[1000] bg-white p-3 rounded-full shadow-lg border border-stone-200 hover:bg-stone-50 transition active:scale-95 flex items-center justify-center text-stone-700" title="우리 집으로 이동">
         <i data-lucide="home" class="w-5 h-5 text-emerald-700"></i>
       </button>
@@ -140,354 +155,231 @@
   </main>
 
   <script>
-    // 1. 데이터 정의 (녹산로 5번길 중심 18개 플레이스)
     const HOME_COORDS = [33.3768, 126.7725]; // 표선면 녹산로 5번길 부근
 
-    const PLACES = [
-      // 데일리 산책로
+    // 1. 기본 생활권 플레이스 (18곳)
+    const LOCAL_PLACES = [
       {
-        id: 'walk-1',
-        cat: 'walk',
-        catName: '데일리 산책',
-        icon: '🐾',
-        name: '조랑말체험공원 평지 잔디마당',
-        tag: '차로 3분 · 관절 안심 잔디밭',
-        time: '3분',
-        lat: 33.3855,
-        lng: 126.7580,
-        surface: '평평한 잔디 및 부드러운 흙길',
-        desc: '조천만세동산의 잔디밭을 완벽히 대체하는 평지 광장. 턱이 없고 시야가 넓어 6살 반려견이 무리 없이 산책하기 최적입니다.',
+        id: 'walk-1', cat: 'walk', catName: '데일리 산책', icon: '🐾',
+        name: '조랑말체험공원 평지 잔디마당', tag: '차로 3분 · 관절 안심 잔디밭', time: '3분',
+        lat: 33.3855, lng: 126.7580, surface: '평평한 잔디 및 부드러운 흙길',
+        desc: '조천만세동산의 잔디밭을 대체하는 평지 광장. 턱이 없고 시야가 넓어 6살 반려견이 무리 없이 산책하기 최적입니다.',
         kakaoQuery: '조랑말체험공원'
       },
       {
-        id: 'walk-2',
-        cat: 'walk',
-        catName: '데일리 산책',
-        icon: '🐾',
-        name: '유채꽃프라자 & 초원 흙길',
-        tag: '차로 6분 · 완만 초원길',
-        time: '6분',
-        lat: 33.4020,
-        lng: 126.7350,
-        surface: '완만한 흙길 및 잔디 산책로',
+        id: 'walk-2', cat: 'walk', catName: '데일리 산책', icon: '🐾',
+        name: '유채꽃프라자 & 초원 흙길', tag: '차로 6분 · 완만 초원길', time: '6분',
+        lat: 33.4020, lng: 126.7350, surface: '완만한 흙길 및 잔디 산책로',
         desc: '풍력발전기 아래 펼쳐진 이국적인 초원. 인적이 드물어 편안하며 대록산 자락으로 이어지는 흙길이 부드럽습니다.',
         kakaoQuery: '유채꽃프라자'
       },
       {
-        id: 'walk-3',
-        cat: 'walk',
-        catName: '데일리 산책',
-        icon: '🐾',
-        name: '성읍민속마을 남문 평지 성곽길',
-        tag: '차로 8분 · 평지 잔디밭',
-        time: '8분',
-        lat: 33.3852,
-        lng: 126.7995,
-        surface: '평탄 잔디 및 잘 닦인 보행로',
-        desc: '험한 오르막 없이 성곽 주변 평지 잔디밭을 여유롭게 걸을 수 있습니다. 냄새 맡기 좋은 고즈넉한 명소입니다.',
+        id: 'walk-3', cat: 'walk', catName: '데일리 산책', icon: '🐾',
+        name: '성읍민속마을 남문 평지 성곽길', tag: '차로 8분 · 평지 잔디밭', time: '8분',
+        lat: 33.3852, lng: 126.7995, surface: '평탄 잔디 및 잘 닦인 보행로',
+        desc: '오르막 없이 성곽 주변 평지 잔디밭을 여유롭게 걸을 수 있습니다. 냄새 맡기 좋은 고즈넉한 명소입니다.',
         kakaoQuery: '성읍민속마을 남문'
       },
       {
-        id: 'walk-4',
-        cat: 'walk',
-        catName: '데일리 산책',
-        icon: '🐾',
-        name: '표선 당포포구 해안 데크길',
-        tag: '차로 10분 · 무장애 보행로',
-        time: '10분',
-        lat: 33.3245,
-        lng: 126.8370,
-        surface: '턱 없는 나무 데크 & 평탄 보도블록',
+        id: 'walk-4', cat: 'walk', catName: '데일리 산책', icon: '🐾',
+        name: '표선 당포포구 해안 데크길', tag: '차로 10분 · 무장애 보행로', time: '10분',
+        lat: 33.3245, lng: 126.8370, surface: '턱 없는 나무 데크 & 평탄 보도블록',
         desc: '바위길 위험 없이 바닷바람을 쐬며 걷기 좋은 평탄 해안 데크 산책로입니다. 노령견 관절에도 안전합니다.',
         kakaoQuery: '당포포구'
       },
       {
-        id: 'walk-5',
-        cat: 'walk',
-        catName: '데일리 산책',
-        icon: '🐾',
-        name: '따라비오름 기슭 완만 잣성길',
-        tag: '차로 8분 · 억새 사잇길',
-        time: '8분',
-        lat: 33.3870,
-        lng: 126.7510,
-        surface: '기슭 둘레 야자매트 및 평탄 흙길',
-        desc: '정상 등반 계단 대신 오름 아래를 도는 완만한 둘레길입니다. 계절 억새 냄새를 맡으며 걷기 좋습니다.',
+        id: 'walk-5', cat: 'walk', catName: '데일리 산책', icon: '🐾',
+        name: '따라비오름 기슭 완만 잣성길', tag: '차로 8분 · 억새 사잇길', time: '8분',
+        lat: 33.3870, lng: 126.7510, surface: '기슭 둘레 야자매트 및 평탄 흙길',
+        desc: '정상 계단 대신 오름 아래를 도는 완만한 둘레길입니다. 계절 억새 냄새를 맡으며 걷기 좋습니다.',
         kakaoQuery: '따라비오름'
       },
-
-      // 바다 입수
       {
-        id: 'beach-1',
-        cat: 'beach',
-        catName: '바다 입수',
-        icon: '🌊',
-        name: '소금막해변',
-        tag: '차로 12분 · 반려견 수영 성지',
-        time: '12분',
-        lat: 33.3310,
-        lng: 126.8450,
-        surface: '곱고 단단한 모래사장',
-        desc: '표선해수욕장 동쪽 비지정 해변. 규제와 번잡함 없이 반려견과 함께 파도로 시원하게 뛰어들 수 있는 비밀 아지트입니다.',
+        id: 'beach-1', cat: 'beach', catName: '바다 입수', icon: '🌊',
+        name: '소금막해변', tag: '차로 12분 · 반려견 수영 성지', time: '12분',
+        lat: 33.3310, lng: 126.8450, surface: '곱고 단단한 모래사장',
+        desc: '표선해수욕장 동쪽 비지정 해변. 규제와 번잡함 없이 반려견과 파도로 시원하게 뛰어들 수 있는 비밀 아지트입니다.',
         kakaoQuery: '소금막해변'
       },
       {
-        id: 'beach-2',
-        cat: 'beach',
-        catName: '바다 입수',
-        icon: '🌊',
-        name: '신양섭지코지해변',
-        tag: '차로 23분 · 잔잔한 만 & 얕은 수심',
-        time: '23분',
-        lat: 33.4350,
-        lng: 126.9230,
-        surface: '완만한 모래 백사장',
+        id: 'beach-2', cat: 'beach', catName: '바다 입수', icon: '🌊',
+        name: '신양섭지코지해변', tag: '차로 23분 · 잔잔한 만 & 얕은 수심', time: '23분',
+        lat: 33.4350, lng: 126.9230, surface: '완만한 모래 백사장',
         desc: '신흥리 해변처럼 호수같이 잔잔한 만 지형입니다. 파도가 적어 물을 무서워하는 아이도 첨벙거리기 안전합니다.',
         kakaoQuery: '신양섭지코지해변'
       },
       {
-        id: 'beach-3',
-        cat: 'beach',
-        catName: '바다 입수',
-        icon: '🌊',
-        name: '광치기해변 (조수웅덩이)',
-        tag: '차로 25분 · 간조 시 천연 웅덩이',
-        time: '25분',
-        lat: 33.4610,
-        lng: 126.9245,
-        surface: '모래사장 & 천연 용암 암반 웅덩이',
+        id: 'beach-3', cat: 'beach', catName: '바다 입수', icon: '🌊',
+        name: '광치기해변 (조수웅덩이)', tag: '차로 25분 · 간조 시 천연 웅덩이', time: '25분',
+        lat: 33.4610, lng: 126.9245, surface: '모래사장 & 천연 용암 암반 웅덩이',
         desc: '썰물(간조) 때 드러나는 천연 해수 웅덩이에서 발을 담그고 안전하게 물놀이하기 좋습니다.',
         kakaoQuery: '광치기해변'
       },
       {
-        id: 'beach-4',
-        cat: 'beach',
-        catName: '바다 입수',
-        icon: '🌊',
-        name: '하도해수욕장',
-        tag: '차로 30분 · 완만한 모래톱',
-        time: '30분',
-        lat: 33.5220,
-        lng: 126.8980,
-        surface: '넓고 완만한 모래 백사장',
+        id: 'beach-4', cat: 'beach', catName: '바다 입수', icon: '🌊',
+        name: '하도해수욕장', tag: '차로 30분 · 완만한 모래톱', time: '30분',
+        lat: 33.5220, lng: 126.8980, surface: '넓고 완만한 모래 백사장',
         desc: '동북부에서 가장 한적한 해변 중 하나. 수심이 매우 얕고 인파가 적어 강아지와 평화롭게 수영하기 좋습니다.',
         kakaoQuery: '하도해수욕장'
       },
-
-      // 반려견 동반 여행지
       {
-        id: 'trip-1',
-        cat: 'trip',
-        catName: '반려견 여행',
-        icon: '🚗',
-        name: '가시림 (정원 수목원 카페)',
-        tag: '차로 4분 · 숲속 산책로',
-        time: '4분',
-        lat: 33.3645,
-        lng: 126.7620,
-        surface: '잘 정비된 야외 정원 산책로',
+        id: 'trip-1', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '가시림 (정원 수목원 카페)', tag: '차로 4분 · 숲속 산책로', time: '4분',
+        lat: 33.3645, lng: 126.7620, surface: '잘 정비된 야외 정원 산책로',
         desc: '마을 안 곶자왈 수목원 카페. 넓은 야외 정원과 숲길이 잘 가꾸어져 있어 바다 물놀이 후 쉬어가기 좋습니다.',
         kakaoQuery: '가시림'
       },
       {
-        id: 'trip-2',
-        cat: 'trip',
-        catName: '반려견 여행',
-        icon: '🚗',
-        name: '큰엉해안경승지',
-        tag: '차로 18분 · 절벽 해송 숲 터널',
-        time: '18분',
-        lat: 33.2750,
-        lng: 126.7080,
-        surface: '평탄 나무 데크 & 숲길',
+        id: 'trip-2', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '큰엉해안경승지', tag: '차로 18분 · 절벽 해송 숲 터널', time: '18분',
+        lat: 33.2750, lng: 126.7080, surface: '평탄 나무 데크 & 숲길',
         desc: '높이 20m 해안 절벽을 따라 조성된 올레길 5코스 산책로. 짙은 나무 그늘과 파도 소리를 즐기며 걷기 좋습니다.',
         kakaoQuery: '큰엉해안경승지'
       },
       {
-        id: 'trip-3',
-        cat: 'trip',
-        catName: '반려견 여행',
-        icon: '🚗',
-        name: '서귀포 칠십리시공원 & 걸매',
-        tag: '차로 35분 · 광활한 도민 잔디공원',
-        time: '35분',
-        lat: 33.2505,
-        lng: 126.5540,
-        surface: '넓은 천연 잔디 구릉 & 수변 데크',
+        id: 'trip-3', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '서귀포 칠십리시공원 & 걸매', tag: '차로 35분 · 광활한 도민 잔디공원', time: '35분',
+        lat: 33.2505, lng: 126.5540, surface: '넓은 천연 잔디 구릉 & 수변 데크',
         desc: '천지연폭포가 내려다보이는 남쪽의 대표 대형 잔디공원. 광활한 잔디밭에서 한라산을 보며 걷기 좋습니다.',
         kakaoQuery: '칠십리시공원'
       },
       {
-        id: 'trip-4',
-        cat: 'trip',
-        catName: '반려견 여행',
-        icon: '🚗',
-        name: '더리트리브 (안덕)',
-        tag: '차로 45분 · 대형견 환영 복합공간',
-        time: '45분',
-        lat: 33.2450,
-        lng: 126.3420,
-        surface: '넓은 실내 플로어 & 야외 마당',
+        id: 'trip-4', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        name: '더리트리브 (안덕)', tag: '차로 45분 · 대형견 환영 복합공간', time: '45분',
+        lat: 33.2450, lng: 126.3420, surface: '넓은 실내 플로어 & 야외 마당',
         desc: '대형견 친화 복합문화공간. 쾌적한 실내 공간과 잔디 마당, 커피와 서점이 갖추어져 있습니다.',
         kakaoQuery: '더리트리브'
       },
-
-      // 빵집
       {
-        id: 'bakery-1',
-        cat: 'bakery',
-        catName: '빵집',
-        icon: '🥐',
-        name: '빵굽는카페 라블레',
-        tag: '차로 10분 · 천연발효 유기농 식사빵',
-        time: '10분',
-        lat: 33.3250,
-        lng: 126.8320,
-        surface: '표선 읍내 베이커리',
+        id: 'bakery-1', cat: 'bakery', catName: '빵집', icon: '🥐',
+        name: '빵굽는카페 라블레', tag: '차로 10분 · 천연발효 유기농 식사빵', time: '10분',
+        lat: 33.3250, lng: 126.8320, surface: '표선 읍내 베이커리',
         desc: '속이 편안한 유기농 깜빠뉴, 통밀빵, 치아바타를 구워내는 동네 거점 빵집입니다.',
         kakaoQuery: '라블레'
       },
       {
-        id: 'bakery-2',
-        cat: 'bakery',
-        catName: '빵집',
-        icon: '🥐',
-        name: '바가텔 (Bagatelle)',
-        tag: '차로 18분 · 프랑스 정통 사워도우',
-        time: '18분',
-        lat: 33.2830,
-        lng: 126.7210,
-        surface: '남원읍 하드계열 전문점',
+        id: 'bakery-2', cat: 'bakery', catName: '빵집', icon: '🥐',
+        name: '바가텔 (Bagatelle)', tag: '차로 18분 · 프랑스 정통 사워도우', time: '18분',
+        lat: 33.2830, lng: 126.7210, surface: '남원읍 하드계열 전문점',
         desc: '천연발효종 사워도우, 바게트, 호밀빵을 제대로 굽는 곳. 세빵스와 빵귿의 식사빵 라인을 잇는 보물 같은 곳입니다.',
         kakaoQuery: '바가텔 남원'
       },
       {
-        id: 'bakery-3',
-        cat: 'bakery',
-        catName: '빵집',
-        icon: '🥐',
-        name: '수와래베이커리',
-        tag: '차로 18분 · 위미리 소금빵 & 샌드위치',
-        time: '18분',
-        lat: 33.2720,
-        lng: 126.6620,
-        surface: '위미리 골목 테이크아웃',
+        id: 'bakery-3', cat: 'bakery', catName: '빵집', icon: '🥐',
+        name: '수와래베이커리', tag: '차로 18분 · 위미리 소금빵 & 샌드위치', time: '18분',
+        lat: 33.2720, lng: 126.6620, surface: '위미리 골목 테이크아웃',
         desc: '버터 풍미가 훌륭한 소금빵과 치아바타 샌드위치가 정평이 난 곳. 오전 산책길에 픽업하기 좋습니다.',
         kakaoQuery: '수와래베이커리'
       },
       {
-        id: 'bakery-4',
-        cat: 'bakery',
-        catName: '빵집',
-        icon: '🥐',
-        name: '송당의 아침',
-        tag: '차로 18분 · 송당리 로컬 식빵',
-        time: '18분',
-        lat: 33.4250,
-        lng: 126.7820,
-        surface: '중산간 식빵 전문 베이커리',
+        id: 'bakery-4', cat: 'bakery', catName: '빵집', icon: '🥐',
+        name: '송당의 아침', tag: '차로 18분 · 송당리 로컬 식빵', time: '18분',
+        lat: 33.4250, lng: 126.7820, surface: '중산간 식빵 전문 베이커리',
         desc: '우도 땅콩 식빵, 제주 말차 단팥 식빵 등 촉촉하고 쫄깃한 식사 대용 식빵이 시그니처입니다.',
         kakaoQuery: '송당의아침'
       },
-
-      // 독립서점 (사람용)
       {
-        id: 'book-1',
-        cat: 'book',
-        catName: '독립서점',
-        icon: '📖',
-        name: '책계일주 (Book Bar)',
-        tag: '차로 14분 · 여행·사진 큐레이션 북바',
-        time: '14분',
-        lat: 33.3150,
-        lng: 126.7880,
-        surface: '토산리 감성 북바',
+        id: 'book-1', cat: 'book', catName: '독립서점', icon: '📖',
+        name: '책계일주 (Book Bar)', tag: '차로 14분 · 여행·사진 큐레이션 북바', time: '14분',
+        lat: 33.3150, lng: 126.7880, surface: '토산리 감성 북바',
         desc: '세계 여행과 에세이 서적에 몰입하며 음료나 와인을 곁들일 수 있는 고요한 사색 공간입니다.',
         kakaoQuery: '책계일주'
       },
       {
-        id: 'book-2',
-        cat: 'book',
-        catName: '독립서점',
-        icon: '📖',
-        name: '라바북스 (LABAS BOOKS)',
-        tag: '차로 18분 · 1세대 독립출판물 서점',
-        time: '18분',
-        lat: 33.2730,
-        lng: 126.6635,
-        surface: '위미리 바닷마을 독립서점',
+        id: 'book-2', cat: 'book', catName: '독립서점', icon: '📖',
+        name: '라바북스 (LABAS BOOKS)', tag: '차로 18분 · 1세대 독립출판물 서점', time: '18분',
+        lat: 33.2730, lng: 126.6635, surface: '위미리 바닷마을 독립서점',
         desc: '국내외 독립출판물, 사진집, 예술 잡지 큐레이션이 돋보이는 곳. 홀로 영감을 채우기 좋습니다.',
         kakaoQuery: '라바북스'
       },
       {
-        id: 'book-3',
-        cat: 'book',
-        catName: '독립서점',
-        icon: '📖',
-        name: '소심한책방',
-        tag: '차로 28분 · 종달리 북 큐레이션',
-        time: '28분',
-        lat: 33.4980,
-        lng: 126.9030,
-        surface: '종달리 돌담 골목 서점',
+        id: 'book-3', cat: 'book', catName: '독립서점', icon: '📖',
+        name: '소심한책방', tag: '차로 28분 · 종달리 북 큐레이션', time: '28분',
+        lat: 33.4980, lng: 126.9030, surface: '종달리 돌담 골목 서점',
         desc: '책방지기의 손글씨 소개와 다정한 인문·문학 서적이 있는 종달리의 대표 책방입니다.',
         kakaoQuery: '소심한책방'
       }
     ];
 
-    // 카테고리별 색상 매핑
+    // 2. 생활권 외부 원정 스팟 (서귀포 시내권 확장 4곳)
+    const FAR_PLACES = [
+      {
+        id: 'far-1', cat: 'far', catName: '원정 빵집', icon: '🥖',
+        name: '시스터필드 (Sister Field)', tag: '차로 45분 · 정통 사워도우 명가', time: '45분',
+        lat: 33.2503, lng: 126.5097, surface: '서귀포 신시가지 베이커리',
+        desc: '사워도우와 바게트, 크루아상의 정점. 유기농 밀가루와 천연효모로 구워내는 삐 님의 최애 하드계열 빵집.',
+        kakaoQuery: '시스터필드'
+      },
+      {
+        id: 'far-2', cat: 'far', catName: '원정 빵집', icon: '🥖',
+        name: '다정다감 (호근동)', tag: '차로 45분 · 천연발효 르방 시골빵', time: '45분',
+        lat: 33.2540, lng: 126.5280, surface: '호근동 조용한 동네 빵집',
+        desc: '조용하고 정갈하게 르방 깜빠뉴와 바게트를 구워내는 보석 같은 식사빵집입니다.',
+        kakaoQuery: '다정다감 제주'
+      },
+      {
+        id: 'far-3', cat: 'far', catName: '원정 서점', icon: '📚',
+        name: '유라케 (URAKE)', tag: '차로 40분 · 인문·예술 독립서점', time: '40분',
+        lat: 33.2570, lng: 126.5680, surface: '서귀포 구도심 책방',
+        desc: '서귀포 시내 안쪽 고요한 사색의 거점. 엄선된 인문 문학 도서와 잔잔한 음악이 있는 공간입니다.',
+        kakaoQuery: '유라케 서귀포'
+      },
+      {
+        id: 'far-4', cat: 'far', catName: '원정 여행', icon: '🌲',
+        name: '서귀포 치유의 숲길 외곽 드라이브', tag: '차로 45분 · 피톤치드 산림욕', time: '45분',
+        lat: 33.2910, lng: 126.5240, surface: '산록남로 숲 그늘 드라이브 & 데크',
+        desc: '한라산 남쪽 기슭 울창한 편백·삼나무 숲. 시원한 산바람을 쐬며 머리를 식히기 좋은 드라이브 코스입니다.',
+        kakaoQuery: '서귀포치유의숲'
+      }
+    ];
+
+    // 색상 매핑
     const CAT_COLORS = {
-      walk: { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300', marker: '#2E7D32' },
-      beach: { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-300', marker: '#0277BD' },
-      trip: { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300', marker: '#E65100' },
-      bakery: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300', marker: '#D84315' },
-      book: { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-300', marker: '#4527A0' }
+      walk: { bg: 'bg-emerald-100', text: 'text-emerald-800', marker: '#2E7D32' },
+      beach: { bg: 'bg-sky-100', text: 'text-sky-800', marker: '#0277BD' },
+      trip: { bg: 'bg-amber-100', text: 'text-amber-800', marker: '#E65100' },
+      bakery: { bg: 'bg-orange-100', text: 'text-orange-800', marker: '#D84315' },
+      book: { bg: 'bg-indigo-100', text: 'text-indigo-800', marker: '#4527A0' },
+      far: { bg: 'bg-rose-100', text: 'text-rose-800', marker: '#C2185B' }
     };
 
-    // 2. 지도 초기화 (Leaflet)
-    let map = L.map('map', {
-      zoomControl: false,
-      attributionControl: false
-    }).setView([33.370, 126.780], 12);
+    // 상태 관리
+    let currentCategory = 'all';
+    let isFarEnabled = false;
 
+    // 지도 초기화 (오픈스트리트맵 무료 타일 적용)
+    let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([33.370, 126.780], 12);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // 심플하고 차분한 CartoDB Positron 타일 레이어
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    // 3. 이동시간 동심원 (5분 ~3km / 15분 ~10km / 30분 ~20km)
-    const ring5 = L.circle(HOME_COORDS, { radius: 3000, color: '#10B981', weight: 1.5, dashArray: '4, 4', fill: true, fillColor: '#10B981', fillOpacity: 0.03 }).addTo(map);
-    const ring15 = L.circle(HOME_COORDS, { radius: 10000, color: '#F59E0B', weight: 1.5, dashArray: '5, 5', fill: true, fillColor: '#F59E0B', fillOpacity: 0.02 }).addTo(map);
-    const ring30 = L.circle(HOME_COORDS, { radius: 20000, color: '#3B82F6', weight: 1.5, dashArray: '6, 6', fill: false }).addTo(map);
+    // 동심원
+    L.circle(HOME_COORDS, { radius: 3000, color: '#10B981', weight: 1.5, dashArray: '4, 4', fill: true, fillColor: '#10B981', fillOpacity: 0.03 }).addTo(map);
+    L.circle(HOME_COORDS, { radius: 10000, color: '#F59E0B', weight: 1.5, dashArray: '5, 5', fill: true, fillColor: '#F59E0B', fillOpacity: 0.02 }).addTo(map);
+    L.circle(HOME_COORDS, { radius: 20000, color: '#3B82F6', weight: 1.5, dashArray: '6, 6', fill: false }).addTo(map);
 
-    // 4. 우리 집(HOME) 마커 생성
+    // 홈 마커
     const homeIcon = L.divIcon({
       className: 'home-marker',
       html: `
         <div class="relative flex items-center justify-center">
           <span class="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-emerald-400 opacity-60"></span>
-          <div class="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shadow-lg border-2 border-white text-base font-bold z-10">
-            🏡
-          </div>
+          <div class="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shadow-lg border-2 border-white text-base font-bold z-10">🏡</div>
         </div>
       `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      iconSize: [40, 40], iconAnchor: [20, 20]
     });
-
     const homeMarker = L.marker(HOME_COORDS, { icon: homeIcon }).addTo(map);
     homeMarker.bindPopup(`
       <div class="text-center font-sans p-1">
-        <p class="text-xs text-emerald-700 font-bold tracking-wider">우리 집 (HOME)</p>
+        <p class="text-xs text-emerald-700 font-bold">우리 집 (HOME)</p>
         <p class="font-extrabold text-stone-900 text-sm mt-0.5">가시리 녹산로 5번길</p>
-        <p class="text-[11px] text-stone-500 mt-1">이곳을 기점으로 5·15·30분 동심원 표기</p>
       </div>
     `);
 
-    // 5. 플레이스 마커 생성 & 렌더링
     const markerGroup = L.layerGroup().addTo(map);
     const markersById = {};
 
@@ -502,20 +394,16 @@
             </div>
           </div>
         `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        iconSize: [32, 32], iconAnchor: [16, 16]
       });
 
       const marker = L.marker([place.lat, place.lng], { icon: customIcon });
-
       const popupHtml = `
         <div class="font-sans text-stone-800 min-w-[210px] p-1">
-          <div class="flex items-center justify-between border-b border-stone-100 pb-1.5 mb-1.5">
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}">
-              ${place.catName} · ${place.time}
-            </span>
-          </div>
-          <h3 class="font-bold text-sm text-stone-900">${place.name}</h3>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}">
+            ${place.catName} · ${place.time}
+          </span>
+          <h3 class="font-bold text-sm text-stone-900 mt-1.5">${place.name}</h3>
           <p class="text-xs text-stone-600 mt-1 leading-snug">${place.desc}</p>
           <div class="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
             <span class="text-[11px] text-emerald-700 font-medium">🐾 ${place.surface}</span>
@@ -523,24 +411,28 @@
           </div>
         </div>
       `;
-
       marker.bindPopup(popupHtml);
-
-      marker.on('click', () => {
-        highlightCard(place.id);
-      });
-
+      marker.on('click', () => highlightCard(place.id));
       return marker;
     }
 
-    // 6. UI 카드 렌더링
     const cardsContainer = document.getElementById('cards-container');
 
-    function renderCards(placesToRender) {
+    function renderCards() {
+      let pool = [...LOCAL_PLACES];
+      if (isFarEnabled) {
+        pool = [...pool, ...FAR_PLACES];
+      }
+
+      let filtered = pool;
+      if (currentCategory !== 'all') {
+        filtered = pool.filter(p => p.cat === currentCategory);
+      }
+
       cardsContainer.innerHTML = '';
       markerGroup.clearLayers();
 
-      if (placesToRender.length === 0) {
+      if (filtered.length === 0) {
         cardsContainer.innerHTML = `
           <div class="p-8 text-center text-stone-400 text-xs">
             해당 카테고리의 장소가 없습니다.
@@ -549,15 +441,12 @@
         return;
       }
 
-      placesToRender.forEach(place => {
+      filtered.forEach(place => {
         const colors = CAT_COLORS[place.cat];
-
-        // 마커 등록
         const marker = createPlaceMarker(place);
         marker.addTo(markerGroup);
         markersById[place.id] = marker;
 
-        // 카드 생성
         const card = document.createElement('div');
         card.id = `card-${place.id}`;
         card.className = `p-3.5 bg-white rounded-xl border border-stone-200 hover:border-stone-400 shadow-sm transition cursor-pointer card-item`;
@@ -577,9 +466,7 @@
             </a>
           </div>
 
-          <p class="text-xs text-stone-600 mt-2 leading-relaxed">
-            ${place.desc}
-          </p>
+          <p class="text-xs text-stone-600 mt-2 leading-relaxed">${place.desc}</p>
 
           <div class="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
             <span class="flex items-center gap-1 text-emerald-800 font-medium">
@@ -589,17 +476,33 @@
           </div>
         `;
 
-        card.addEventListener('click', () => {
-          focusPlace(place);
-        });
-
+        card.addEventListener('click', () => focusPlace(place));
         cardsContainer.appendChild(card);
       });
 
       lucide.createIcons();
     }
 
-    // 카드 및 지도 포커스 동기화
+    function toggleFarPlaces() {
+      isFarEnabled = !isFarEnabled;
+      const badge = document.getElementById('far-badge');
+      const btn = document.getElementById('toggle-far-btn');
+
+      if (isFarEnabled) {
+        badge.innerText = 'ON';
+        badge.className = 'bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-600 bg-rose-600 text-white shadow-sm';
+        // 원정 스팟까지 보이도록 지도 시야 확장
+        map.flyTo([33.30, 126.65], 11, { duration: 1.0 });
+      } else {
+        badge.innerText = 'OFF';
+        badge.className = 'bg-stone-400 text-white text-[10px] px-1.5 py-0.2 rounded-full';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-sm';
+        focusHome();
+      }
+      renderCards();
+    }
+
     function focusPlace(place) {
       map.flyTo([place.lat, place.lng], 13.5, { duration: 0.8 });
       const marker = markersById[place.id];
@@ -607,8 +510,6 @@
         setTimeout(() => marker.openPopup(), 400);
       }
       highlightCard(place.id);
-
-      // 모바일일 경우 지도로 화면 자동 이동
       if (window.innerWidth < 768) {
         setMobileView('map');
       }
@@ -625,15 +526,13 @@
       }
     }
 
-    // 홈으로 이동
     function focusHome() {
       map.flyTo(HOME_COORDS, 12, { duration: 0.8 });
       homeMarker.openPopup();
     }
 
-    // 카테고리 필터링
     function filterCategory(cat) {
-      // 탭 스타일 갱신
+      currentCategory = cat;
       document.querySelectorAll('.cat-pill').forEach(btn => {
         if (btn.dataset.cat === cat) {
           btn.className = 'cat-pill active px-3 py-1.5 rounded-full font-medium transition bg-stone-900 text-white shadow-sm';
@@ -641,16 +540,9 @@
           btn.className = 'cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200';
         }
       });
-
-      if (cat === 'all') {
-        renderCards(PLACES);
-      } else {
-        const filtered = PLACES.filter(p => p.cat === cat);
-        renderCards(filtered);
-      }
+      renderCards();
     }
 
-    // 모바일 뷰 토글
     function setMobileView(view) {
       const listEl = document.getElementById('sidebar-list');
       const mapEl = document.getElementById('map-container');
@@ -671,7 +563,6 @@
       }
     }
 
-    // 반응형 초기화
     function initResponsive() {
       if (window.innerWidth < 768) {
         setMobileView('map');
@@ -689,9 +580,8 @@
       }
     });
 
-    // 앱 실행
     window.onload = () => {
-      renderCards(PLACES);
+      renderCards();
       initResponsive();
       lucide.createIcons();
     };
