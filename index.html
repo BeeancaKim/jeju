@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>가시리 라이프 맵</title>
+  <title>가시리 라이프 맵 (Gasi-ri Life Map)</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,9 +16,10 @@
               walk: '#2E7D32',
               beach: '#0277BD',
               trip: '#E65100',
+              food: '#D81B60',
               bakery: '#D84315',
               book: '#4527A0',
-              far: '#C2185B'
+              far: '#8E24AA'
             }
           }
         }
@@ -86,34 +87,37 @@
     </div>
   </header>
 
-  <!-- 2. 카테고리 필터 & 원정 토글 바 -->
+  <!-- 2. 카테고리 필터 & 원정 토글 바 (괄호 숫자 완전 제거) -->
   <nav class="bg-white border-b border-stone-200 px-3 py-2 z-10 shrink-0 flex items-center justify-between gap-2 overflow-x-auto">
     <div class="flex items-center space-x-1.5 min-w-max text-xs" id="filter-container">
       <button onclick="filterCategory('all')" data-cat="all" class="cat-pill active px-3 py-1.5 rounded-full font-medium transition bg-stone-900 text-white shadow-sm">
         전체 보기
       </button>
       <button onclick="filterCategory('walk')" data-cat="walk" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        🐾 데일리 산책 (5)
+        🐾 데일리 산책
       </button>
       <button onclick="filterCategory('beach')" data-cat="beach" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        🌊 바다 입수 (4)
+        🌊 바다 입수
+      </button>
+      <button onclick="filterCategory('food')" data-cat="food" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
+        🍲 맛집
       </button>
       <button onclick="filterCategory('trip')" data-cat="trip" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        🚗 반려견 여행 (8)
+        🚗 반려견 여행
       </button>
       <button onclick="filterCategory('bakery')" data-cat="bakery" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        🥐 빵집 (4)
+        🥐 빵집
       </button>
       <button onclick="filterCategory('book')" data-cat="book" class="cat-pill px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-700 hover:bg-stone-200">
-        📖 독립서점 (3)
+        📖 독립서점
       </button>
     </div>
 
     <!-- 원정 동쪽/서귀포 토글 버튼 -->
     <div class="shrink-0">
-      <button id="toggle-far-btn" onclick="toggleFarPlaces()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-sm">
+      <button id="toggle-far-btn" onclick="toggleFarPlaces()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 shadow-sm">
         <span>🏝️ 동쪽·서귀포 원정</span>
-        <span id="far-badge" class="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">OFF</span>
+        <span id="far-badge" class="bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">OFF</span>
       </button>
     </div>
   </nav>
@@ -124,17 +128,17 @@
     <!-- [좌측] 장소 상세 카드 목록 -->
     <section id="sidebar-list" class="w-full md:w-[420px] lg:w-[460px] h-full overflow-y-auto p-4 space-y-3 bg-[#FAF8F5] border-r border-stone-200 shrink-0 z-10">
       
-      <!-- 반려견 케어 안내 박스 -->
+      <!-- 상단 현황 인디케이터 박스 -->
       <div class="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[12px] text-emerald-900 space-y-1">
         <div class="font-bold flex items-center justify-between text-emerald-800">
           <span class="flex items-center gap-1.5">
             <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-            여섯 살 관절 안심 생활권
+            여섯 살 관절 안심 & 로컬 큐레이션
           </span>
-          <span id="place-count-indicator" class="text-[11px] text-emerald-600 font-semibold">22개 장소 표시 중</span>
+          <span id="place-count-indicator" class="text-[11px] text-emerald-700 font-semibold">장소 표시 중</span>
         </div>
         <p class="text-emerald-700 leading-relaxed text-[11px]">
-          거친 자갈길은 배제하고, 평탄 잔디마당과 무장애 데크, 수심 얕은 완만 모래사장 위주로 구성했습니다.
+          자갈길 배제 · 평탄 잔디마당과 무장애 데크, 수심 얕은 완만 모래사장과 검증된 도민 맛집 위주입니다.
         </p>
       </div>
 
@@ -155,9 +159,9 @@
   </main>
 
   <script>
-    const HOME_COORDS = [33.3768, 126.7725]; // 표선면 녹산로 5번길 부근
+    const HOME_COORDS = [33.3768, 126.7725]; // 가시리 녹산로 5번길 부근
 
-    // 1. 기본 생활권 플레이스 (총 24곳: 데일리5 + 바다4 + 여행8 + 빵4 + 서점3)
+    // 1. 기본 생활권 플레이스 (가시리 반경 30분 내외)
     const LOCAL_PLACES = [
       // 데일리 산책
       {
@@ -196,7 +200,7 @@
         kakaoQuery: '따라비오름'
       },
 
-      // 바다 입수
+      // 바다 입수 (생활권)
       {
         id: 'beach-1', cat: 'beach', catName: '바다 입수', icon: '🌊',
         name: '소금막해변', tag: '차로 12분 · 반려견 수영 성지', time: '12분',
@@ -226,7 +230,30 @@
         kakaoQuery: '하도해수욕장'
       },
 
-      // 반려견 동반 여행지 (기존 4곳 + 신규 생활권 4곳 = 총 8곳)
+      // 맛집 (생활권)
+      {
+        id: 'food-1', cat: 'food', catName: '맛집', icon: '🍲',
+        name: '가시식당', tag: '차로 2분 · 가시리 도민 두루치기·몸국', time: '2분',
+        lat: 33.3760, lng: 126.7710, surface: '가시리 중심가 도민 노포',
+        desc: '가시리 마을의 자랑이자 찐 로컬 맛집. 돼지고기를 구운 뒤 무채와 콩나물을 올려 볶아 먹는 두루치기와 걸쭉한 메밀 몸국이 일품입니다.',
+        kakaoQuery: '가시식당'
+      },
+      {
+        id: 'food-2', cat: 'food', catName: '맛집', icon: '🍲',
+        name: '당케올레국수', tag: '차로 10분 · 보말칼국수·보말죽 명가', time: '10분',
+        lat: 33.3240, lng: 126.8375, surface: '표선 당포포구 앞',
+        desc: '진한 보말 국물에 칼국수와 밥이 함께 말아져 나오는 표선의 대표 향토 식당. 아침 일찍 산책 후 든든하게 먹기 좋습니다.',
+        kakaoQuery: '당케올레국수'
+      },
+      {
+        id: 'food-3', cat: 'food', catName: '맛집', icon: '🍲',
+        name: '만덕이네', tag: '차로 8분 · 한식대첩 우승 접짝뼈국', time: '8분',
+        lat: 33.3860, lng: 126.7980, surface: '성읍민속마을 토속식당',
+        desc: '한식대첩 우승으로 유명한 곳. 맑고 걸쭉한 제주 전통 접짝뼈국과 전복문어 흑돼지 두루치기를 제대로 맛볼 수 있습니다.',
+        kakaoQuery: '만덕이네 성읍'
+      },
+
+      // 반려견 여행 (생활권)
       {
         id: 'trip-1', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '가시림 (정원 수목원 카페)', tag: '차로 4분 · 숲속 산책로', time: '4분',
@@ -243,48 +270,34 @@
       },
       {
         id: 'trip-3', cat: 'trip', catName: '반려견 여행', icon: '🚗',
-        name: '서귀포 칠십리시공원 & 걸매', tag: '차로 35분 · 광활한 도민 잔디공원', time: '35분',
-        lat: 33.2505, lng: 126.5540, surface: '넓은 천연 잔디 구릉 & 수변 데크',
-        desc: '천지연폭포가 내려다보이는 남쪽의 대표 대형 잔디공원. 광활한 잔디밭에서 한라산을 보며 걷기 좋습니다.',
-        kakaoQuery: '칠십리시공원'
-      },
-      {
-        id: 'trip-4', cat: 'trip', catName: '반려견 여행', icon: '🚗',
-        name: '더리트리브 (안덕)', tag: '차로 45분 · 대형견 환영 복합공간', time: '45분',
-        lat: 33.2450, lng: 126.3420, surface: '넓은 실내 플로어 & 야외 마당',
-        desc: '대형견 친화 복합문화공간. 쾌적한 실내 공간과 잔디 마당, 커피와 서점이 갖추어져 있습니다.',
-        kakaoQuery: '더리트리브'
-      },
-      {
-        id: 'trip-5', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '보목포구 & 섶섬지기 바닷길', tag: '차로 25분 · 고즈넉한 포구 산책', time: '25분',
         lat: 33.2370, lng: 126.6025, surface: '평탄 포구 해안길 & 바다 전망 카페',
         desc: '섶섬이 눈앞에 잡힐 듯 펼쳐지는 평화로운 어촌 포구. 인파 없이 한적하게 바닷바람을 쐬며 걷기 좋습니다.',
         kakaoQuery: '보목포구'
       },
       {
-        id: 'trip-6', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        id: 'trip-4', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '자구리 문화예술공원', tag: '차로 32분 · 해안 절벽 잔디밭', time: '32분',
         lat: 33.2440, lng: 126.5700, surface: '완만한 해안 잔디 공원 & 데크',
         desc: '문섬과 섶섬을 조망하며 잔디밭을 산책할 수 있는 서귀포 로컬 반려인들의 명소. 바다 바람이 시원합니다.',
         kakaoQuery: '자구리공원'
       },
       {
-        id: 'trip-7', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        id: 'trip-5', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '종달리 철새도래지 & 해안길', tag: '차로 28분 · 잔잔한 수변 흙길', time: '28분',
         lat: 33.4950, lng: 126.9120, surface: '부드러운 해안 흙길 & 수변 데크',
         desc: '차량 통행이 적고 수심 얕은 만을 따라 평탄한 흙길이 이어져 조용하게 노즈워크하기 훌륭한 동쪽 코스입니다.',
         kakaoQuery: '종달리 철새도래지'
       },
       {
-        id: 'trip-8', cat: 'trip', catName: '반려견 여행', icon: '🚗',
+        id: 'trip-6', cat: 'trip', catName: '반려견 여행', icon: '🚗',
         name: '김녕 세기알해변 & 환해장성길', tag: '차로 30분 · 평지 성곽 해안길', time: '30분',
         lat: 33.5580, lng: 126.7530, surface: '평탄 현무암 잔디 보행로',
         desc: '코발트빛 김녕 바다와 옛 현무암 성곽을 끼고 평평하게 걷는 코스. 시야가 맑고 바람이 좋습니다.',
         kakaoQuery: '세기알해변'
       },
 
-      // 빵집
+      // 빵집 (생활권)
       {
         id: 'bakery-1', cat: 'bakery', catName: '빵집', icon: '🥐',
         name: '빵굽는카페 라블레', tag: '차로 10분 · 천연발효 유기농 식사빵', time: '10분',
@@ -314,7 +327,7 @@
         kakaoQuery: '송당의아침'
       },
 
-      // 독립서점
+      // 독립서점 (생활권)
       {
         id: 'book-1', cat: 'book', catName: '독립서점', icon: '📖',
         name: '책계일주 (Book Bar)', tag: '차로 14분 · 여행·사진 큐레이션 북바', time: '14분',
@@ -338,80 +351,100 @@
       }
     ];
 
-    // 2. 동쪽·서귀포 원정 스팟 (반려견 동반 6곳 + 시스터필드 등 빵/서점 4곳 = 총 10곳)
+    // 2. 동쪽·서귀포 원정 스팟 (바다 입수 2곳 + 맛집 3곳 + 여행/빵/서점 7곳 = 총 12곳)
     const FAR_PLACES = [
-      // 기존 빵집 & 서점 & 드라이브
+      // [신규] 원정 바다 입수
       {
-        id: 'far-1', cat: 'far', catName: '원정 빵집', icon: '🥖',
+        id: 'far-beach-1', cat: 'beach', catName: '원정 바다', icon: '🌊',
+        name: '행원해변 (코난비치)', tag: '차로 34분 · 천연 수영장 & 스노클링', time: '34분',
+        lat: 33.5560, lng: 126.8080, surface: '투명한 얕은 수심 & 모래사장',
+        desc: '동쪽 구좌의 숨은 천연 입수지. 얕은 수심과 천연 암반이 방파제 역할을 해 강아지와 스노클링 및 수영하기 최고입니다.',
+        kakaoQuery: '코난비치'
+      },
+      {
+        id: 'far-beach-2', cat: 'beach', catName: '원정 바다', icon: '🌊',
+        name: '사계해변 & 황우치 해안', tag: '차로 52분 · 산방산 뷰 완만 모래밭', time: '52분',
+        lat: 33.2280, lng: 126.3120, surface: '단단한 모래사장 & 완만한 해안',
+        desc: '산방산과 형제섬을 마주 보며 물놀이를 즐길 수 있는 서남단 해변. 수심이 완만해 강아지와 모래밭 파도타기 좋습니다.',
+        kakaoQuery: '사계해변'
+      },
+
+      // [신규] 원정 맛집
+      {
+        id: 'far-food-1', cat: 'food', catName: '원정 맛집', icon: '🍲',
+        name: '테이블앤데스크 (남원)', tag: '차로 22분 · 반려견 동반 정갈한 양식', time: '22분',
+        lat: 33.2790, lng: 126.7150, surface: '남원 조용한 골목 식당',
+        desc: '반려견 동반이 환영받는 남원의 정갈하고 담백한 양식 맛집. 카레와 오므라이스가 일품이며 실내 동반이 가능합니다.',
+        kakaoQuery: '테이블앤데스크'
+      },
+      {
+        id: 'far-food-2', cat: 'food', catName: '원정 맛집', icon: '🍲',
+        name: '천짓골식당 (서귀포 시내)', tag: '차로 38분 · 도민 돔베고기 원탑', time: '38분',
+        lat: 33.2490, lng: 126.5610, surface: '서귀포 천지동 노포',
+        desc: '주문 즉시 따뜻하게 썰어주는 제주 돔베고기의 정점. 부드러운 백돼지/흑돼지 수육을 소금과 멸치젓에 찍어 먹는 도민 성지입니다.',
+        kakaoQuery: '천짓골식당'
+      },
+      {
+        id: 'far-food-3', cat: 'food', catName: '원정 맛집', icon: '🍲',
+        name: '평대리멍석 (구좌 평대리)', tag: '차로 32분 · 바다뷰 돌문어덮밥·해물라면', time: '32분',
+        lat: 33.5350, lng: 126.8400, surface: '평대 해안도로 야외 테라스',
+        desc: '반려견 동반이 가능한 해변 앞 해물 맛집. 통돌문어 덮밥과 푸짐한 해물라면을 바다를 보며 즐길 수 있습니다.',
+        kakaoQuery: '평대리멍석'
+      },
+
+      // 원정 빵집
+      {
+        id: 'far-1', cat: 'bakery', catName: '원정 빵집', icon: '🥖',
         name: '시스터필드 (Sister Field)', tag: '차로 45분 · 정통 사워도우 명가', time: '45분',
         lat: 33.2503, lng: 126.5097, surface: '서귀포 신시가지 베이커리',
         desc: '사워도우와 바게트, 크루아상의 정점. 유기농 밀가루와 천연효모로 구워내는 삐 님의 최애 하드계열 빵집.',
         kakaoQuery: '시스터필드'
       },
       {
-        id: 'far-2', cat: 'far', catName: '원정 빵집', icon: '🥖',
+        id: 'far-2', cat: 'bakery', catName: '원정 빵집', icon: '🥖',
         name: '다정다감 (호근동)', tag: '차로 45분 · 천연발효 르방 시골빵', time: '45분',
         lat: 33.2540, lng: 126.5280, surface: '호근동 조용한 동네 빵집',
         desc: '조용하고 정갈하게 르방 깜빠뉴와 바게트를 구워내는 보석 같은 식사빵집입니다.',
         kakaoQuery: '다정다감 제주'
       },
+
+      // 원정 서점
       {
-        id: 'far-3', cat: 'far', catName: '원정 서점', icon: '📚',
+        id: 'far-3', cat: 'book', catName: '원정 서점', icon: '📚',
         name: '유라케 (URAKE)', tag: '차로 40분 · 인문·예술 독립서점', time: '40분',
         lat: 33.2570, lng: 126.5680, surface: '서귀포 구도심 책방',
         desc: '서귀포 시내 안쪽 고요한 사색의 거점. 엄선된 인문 문학 도서와 잔잔한 음악이 있는 공간입니다.',
         kakaoQuery: '유라케 서귀포'
       },
-      {
-        id: 'far-4', cat: 'far', catName: '원정 여행', icon: '🌲',
-        name: '서귀포 치유의 숲길 외곽 드라이브', tag: '차로 45분 · 피톤치드 산림욕', time: '45분',
-        lat: 33.2910, lng: 126.5240, surface: '산록남로 숲 그늘 드라이브 & 데크',
-        desc: '한라산 남쪽 기슭 울창한 편백·삼나무 숲. 시원한 산바람을 쐬며 머리를 식히기 좋은 드라이브 코스입니다.',
-        kakaoQuery: '서귀포치유의숲'
-      },
 
-      // [신규 보강] 반려견 동반 원정 자연·공원 명소들
+      // 원정 반려견 여행지
       {
-        id: 'far-5', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        id: 'far-4', cat: 'trip', catName: '원정 여행', icon: '🚗',
+        name: '더리트리브 (안덕)', tag: '차로 45분 · 대형견 환영 복합공간', time: '45분',
+        lat: 33.2450, lng: 126.3420, surface: '넓은 실내 플로어 & 야외 마당',
+        desc: '대형견 친화 복합문화공간. 쾌적한 실내 공간과 잔디 마당, 커피와 서점이 갖추어져 있습니다.',
+        kakaoQuery: '더리트리브'
+      },
+      {
+        id: 'far-5', cat: 'trip', catName: '원정 여행', icon: '🚗',
         name: '제주조각공원 (포레스트아트)', tag: '차로 48분 · 곶자왈 숲 산책로', time: '48분',
         lat: 33.2520, lng: 126.3260, surface: '넓은 평지 잔디 광장 & 목재 데크',
         desc: '안덕면의 드넓은 야외 조각 숲공원. 반려견 동반 입장이 가능하며 바닥이 평탄해 여유롭게 삼림욕 산책을 즐기기 좋습니다.',
         kakaoQuery: '제주조각공원'
       },
       {
-        id: 'far-6', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        id: 'far-6', cat: 'trip', catName: '원정 여행', icon: '🚗',
         name: '송악산 둘레길 (완만 데크 구간)', tag: '차로 55분 · 산방산 바다 절벽 뷰', time: '55분',
         lat: 33.2030, lng: 126.2910, surface: '무장애 목재 데크 로드',
         desc: '제주 서남단 바다 절벽을 따라 끝없이 펼쳐지는 데크길. 가파른 계단 전까지 평탄하게 바닷바람을 쐬며 걷기 최적입니다.',
         kakaoQuery: '송악산둘레길'
       },
       {
-        id: 'far-7', cat: 'far', catName: '원정 반려견', icon: '🐾',
-        name: '엉또폭포 무장애 숲 데크길', tag: '차로 42분 · 동백·편백 숲길', time: '42분',
-        lat: 33.2680, lng: 126.4840, surface: '계단 없는 완만한 숲 데크',
-        desc: '울창한 숲 그늘 아래 턱 없는 목재 데크가 길게 깔려 있어, 비 온 직후뿐 아니라 평소에도 반려견과 시원하게 걷기 좋습니다.',
-        kakaoQuery: '엉또폭포'
-      },
-      {
-        id: 'far-8', cat: 'far', catName: '원정 반려견', icon: '🐾',
+        id: 'far-7', cat: 'trip', catName: '원정 여행', icon: '🚗',
         name: '성산일출봉 외곽 잔디광장길', tag: '차로 32분 · 웅장한 절벽 뷰', time: '32분',
         lat: 33.4580, lng: 126.9380, surface: '넓고 평평한 천연 잔디밭',
-        desc: '유료 등산로에 오르지 않고, 매표소 앞 드넓은 잔디 광장과 우뭇개 해안 전망대 언덕길을 여유롭게 거니는 동쪽 코스입니다.',
+        desc: '유료 등산로에 오르지 않고, 매표소 앞 드넓은 잔디 광장과 우뭇개 해안 언덕길을 여유롭게 거니는 동쪽 코스입니다.',
         kakaoQuery: '성산일출봉 잔디'
-      },
-      {
-        id: 'far-9', cat: 'far', catName: '원정 반려견', icon: '🐾',
-        name: '행원리 풍력단지 해안 산책로', tag: '차로 35분 · 동쪽 탁 트인 직선길', time: '35분',
-        lat: 33.5510, lng: 126.8150, surface: '평탄한 해안 포장길 & 자전거도로',
-        desc: '구좌 동쪽 바다 한가운데로 뻗은 거대한 풍력발전기 아래 해안도로. 인적이 드물어 시원한 바닷바람을 맞으며 산책하기 좋습니다.',
-        kakaoQuery: '행원포구'
-      },
-      {
-        id: 'far-10', cat: 'far', catName: '원정 반려견', icon: '🐾',
-        name: '군산오름 진입로 능선 흙길', tag: '차로 50분 · 파노라마 남해 뷰', time: '50분',
-        lat: 33.2420, lng: 126.3680, surface: '완만한 흙길 & 정상부 초원',
-        desc: '정상 바로 아래까지 차로 올라갈 수 있어 6살 강아지도 힘들이지 않고 한라산 남벽과 바다를 360도로 조망할 수 있습니다.',
-        kakaoQuery: '군산오름'
       }
     ];
 
@@ -419,17 +452,17 @@
     const CAT_COLORS = {
       walk: { bg: 'bg-emerald-100', text: 'text-emerald-800', marker: '#2E7D32' },
       beach: { bg: 'bg-sky-100', text: 'text-sky-800', marker: '#0277BD' },
+      food: { bg: 'bg-pink-100', text: 'text-pink-800', marker: '#D81B60' },
       trip: { bg: 'bg-amber-100', text: 'text-amber-800', marker: '#E65100' },
       bakery: { bg: 'bg-orange-100', text: 'text-orange-800', marker: '#D84315' },
       book: { bg: 'bg-indigo-100', text: 'text-indigo-800', marker: '#4527A0' },
-      far: { bg: 'bg-rose-100', text: 'text-rose-800', marker: '#C2185B' }
+      far: { bg: 'bg-purple-100', text: 'text-purple-800', marker: '#8E24AA' }
     };
 
-    // 상태 관리
     let currentCategory = 'all';
     let isFarEnabled = false;
 
-    // Leaflet 지도 초기화 (오픈스트리트맵 타일)
+    // Leaflet 지도 초기화
     let map = L.map('map', { zoomControl: false, attributionControl: false }).setView([33.370, 126.780], 12);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -466,7 +499,7 @@
     const markersById = {};
 
     function createPlaceMarker(place) {
-      const colors = CAT_COLORS[place.cat];
+      const colors = CAT_COLORS[place.cat] || CAT_COLORS.far;
       const customIcon = L.divIcon({
         className: `place-marker-${place.id}`,
         html: `
@@ -512,7 +545,7 @@
         filtered = pool.filter(p => p.cat === currentCategory);
       }
 
-      indicator.innerText = `${filtered.length}개 장소 표시 중`;
+      indicator.innerText = `${filtered.length}개 장소 표시 중 ${isFarEnabled ? '(원정 포함)' : '(생활권)'}`;
       cardsContainer.innerHTML = '';
       markerGroup.clearLayers();
 
@@ -526,7 +559,7 @@
       }
 
       filtered.forEach(place => {
-        const colors = CAT_COLORS[place.cat];
+        const colors = CAT_COLORS[place.cat] || CAT_COLORS.far;
         const marker = createPlaceMarker(place);
         marker.addTo(markerGroup);
         markersById[place.id] = marker;
@@ -574,14 +607,13 @@
 
       if (isFarEnabled) {
         badge.innerText = 'ON';
-        badge.className = 'bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full';
-        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-600 bg-rose-600 text-white shadow-sm';
-        // 서남단과 동북단이 모두 보이도록 지도 중심 및 줌 조정
-        map.flyTo([33.34, 126.62], 10.5, { duration: 1.0 });
+        badge.className = 'bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-purple-600 bg-purple-600 text-white shadow-sm';
+        map.flyTo([33.35, 126.65], 10.5, { duration: 1.0 });
       } else {
         badge.innerText = 'OFF';
         badge.className = 'bg-stone-400 text-white text-[10px] px-1.5 py-0.2 rounded-full';
-        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 shadow-sm';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 shadow-sm';
         focusHome();
       }
       renderCards();
